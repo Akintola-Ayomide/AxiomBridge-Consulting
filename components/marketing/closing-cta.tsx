@@ -26,8 +26,8 @@ function ClosingCta() {
             {"Let's Build What's Next."}
           </h2>
           <p className="mt-5 max-w-xl text-body-lg text-on-navy-muted">
-            Partner with our senior advisors to accelerate performance and
-            secure lasting competitive advantage.
+            Clarify your priorities, strengthen execution and build practical
+            capacity for growth.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button asChild variant="inverse" size="lg">

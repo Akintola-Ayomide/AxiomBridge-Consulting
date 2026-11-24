@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
 
-type MetricProps = {
+type HighlightProps = {
   value: string;
   label: string;
   className?: string;
 };
 
-function Metric({ value, label, className }: MetricProps) {
+function Highlight({ value, label, className }: HighlightProps) {
   return (
     <div
       className={cn(
@@ -15,11 +15,11 @@ function Metric({ value, label, className }: MetricProps) {
       )}
     >
       <dt className="font-sans text-label-md text-slate">{label}</dt>
-      <dd className="font-display text-headline-lg leading-none font-semibold text-navy">
+      <dd className="font-display text-title-lg leading-snug font-semibold text-navy">
         {value}
       </dd>
     </div>
   );
 }
 
-export { Metric };
+export { Highlight };

@@ -1,3 +1,5 @@
+import { siteConfig } from "@/lib/site";
+
 export const DEFAULT_FORMSUBMIT_SUBJECT = "New website enquiry — AxiomBridge Consulting";
 
 export type FormSubmitConfig = {
@@ -7,14 +9,14 @@ export type FormSubmitConfig = {
   blacklist?: string;
 };
 
-/** Reads public FormSubmit settings. Returns null until a recipient is configured. */
-export function getFormSubmitConfig(): FormSubmitConfig | null {
-  const recipient = process.env.NEXT_PUBLIC_FORMSUBMIT_RECIPIENT?.replace(/\s/g, "");
-
-  if (!recipient) {
-    return null;
-  }
-
+/**
+ * Reads public FormSubmit settings. The configured contact email is always
+ * the recipient unless an explicit override (for example a FormSubmit alias)
+ * has been supplied.
+ */
+export function getFormSubmitConfig(): FormSubmitConfig {
+  const override = process.env.NEXT_PUBLIC_FORMSUBMIT_RECIPIENT?.replace(/\s/g, "");
+  const recipient = override || siteConfig.contact.email;
   const blacklist = process.env.NEXT_PUBLIC_FORMSUBMIT_BLACKLIST?.trim();
 
   return {

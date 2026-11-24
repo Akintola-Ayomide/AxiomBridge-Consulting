@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-export type Metric = {
+export type ApproachHighlight = {
   value: string;
   label: string;
 };
@@ -43,30 +43,42 @@ export type Industry = {
   icon: LucideIcon;
 };
 
-export const metrics = [
-  { value: "15+", label: "Years Regional Focus" },
-  { value: "98%", label: "Strategic Implementation Rate" },
-  { value: "$420M+", label: "Value Created" },
-  { value: "6", label: "Strategic Sectors" },
-] satisfies Metric[];
+export const approachHighlights = [
+  {
+    value: "Evidence-led",
+    label: "Decisions grounded in market reality",
+  },
+  {
+    value: "Execution-focused",
+    label: "Advice shaped for implementation",
+  },
+  {
+    value: "Context-aware",
+    label: "Built around West African operating conditions",
+  },
+  {
+    value: "Value-minded",
+    label: "Focused on resilience and durable growth",
+  },
+] satisfies ApproachHighlight[];
 
 export const principles = [
   {
     title: "Evidence-Led Strategy",
     description:
-      "Bespoke analytical diagnostics grounded in empirical market realities, proprietary economic intelligence and contextual sector foresight.",
+      "We begin with the facts: market conditions, operational reality and the constraints leaders actually face. Recommendations are clear, proportionate and defensible.",
     icon: ChartSpline,
   },
   {
     title: "Execution Rigour",
     description:
-      "Translating complex advisory mandates into institutional change, operational alignment and relentless milestone delivery.",
+      "A strategy only matters if it can be delivered. We define owners, milestones and decisions so recommendations become practical action.",
     icon: Gauge,
   },
   {
     title: "Sustainable Capital & Growth",
     description:
-      "Long-term balance sheet resilience, capital efficiency and sustainable enterprise expansion designed to outlast market volatility.",
+      "We focus on decisions that protect cash, strengthen resilience and support growth that can be sustained beyond the engagement.",
     icon: TrendingUp,
   },
 ] satisfies Principle[];
@@ -77,11 +89,11 @@ export const practiceAreas = [
     number: "01",
     title: "Business Strategy & Advisory",
     summary:
-      "Formulating sovereign market entry plays, corporate restructuring mandates and defensible competitive positioning to command regional market share.",
+      "We help leadership teams assess market opportunities, choose where to compete and turn strategy into a clear, sequenced plan.",
     capabilities: [
       "Market Entry",
       "Corporate Restructuring",
-      "Competitive Moats",
+      "Competitive Positioning",
     ],
     icon: BriefcaseBusiness,
   },
@@ -90,8 +102,8 @@ export const practiceAreas = [
     number: "02",
     title: "Operational Excellence",
     summary:
-      "End-to-end process redesign, regional supply chain hardening against FX shocks and comprehensive structural cost rationalisation.",
-    capabilities: ["Process Redesign", "Supply Chain Resilience"],
+      "We map end-to-end processes, identify cost and capacity constraints, and design operating improvements that teams can implement.",
+    capabilities: ["Process Redesign", "Supply Chain Resilience", "Cost Improvement"],
     icon: Settings2,
   },
   {
@@ -99,8 +111,8 @@ export const practiceAreas = [
     number: "03",
     title: "Financial & Operational Advisory",
     summary:
-      "Rigorous capital allocation strategies, working capital optimisation and enterprise risk containment in fluctuating monetary environments.",
-    capabilities: ["Capital Allocation", "Working Capital", "Risk"],
+      "We support capital allocation, working capital discipline and risk management so organisations can make informed financial decisions.",
+    capabilities: ["Capital Allocation", "Working Capital", "Risk Management"],
     icon: Landmark,
   },
   {
@@ -108,12 +120,8 @@ export const practiceAreas = [
     number: "04",
     title: "Digital Transformation",
     summary:
-      "Core legacy modernisation, robust enterprise data analytics infrastructure and strategic workflow automation roadmaps.",
-    capabilities: [
-      "Legacy Core",
-      "Enterprise Analytics",
-      "Automation",
-    ],
+      "We assess legacy systems and data needs, then define practical automation and analytics roadmaps aligned to business priorities.",
+    capabilities: ["Systems Modernisation", "Data & Analytics", "Automation"],
     icon: Cpu,
   },
   {
@@ -121,7 +129,7 @@ export const practiceAreas = [
     number: "05",
     title: "Corporate Growth & Development",
     summary:
-      "Pre- and post-merger integration frameworks, high-stakes cross-border joint ventures and scalable conglomerate governance design.",
+      "We support merger integration, joint venture planning and governance design to help organisations grow without losing operational control.",
     capabilities: ["M&A Integration", "Joint Ventures", "Governance"],
     icon: Network,
   },
@@ -133,7 +141,7 @@ export const industries = [
     category: "Banking & Markets",
     title: "Financial Services",
     summary:
-      "Advising commercial banks, fintech firms and micro-insurers on regulatory compliance, digital credit architecture and sovereign risk management.",
+      "We advise banks, fintech firms and insurers on regulatory change, digital channels, credit processes and risk management.",
     icon: Landmark,
   },
   {
@@ -141,7 +149,7 @@ export const industries = [
     category: "Digital Rails",
     title: "Tech & Telecoms",
     summary:
-      "Structuring telecom tower asset spin-offs, national fibre expansion roadmaps and pan-African software enterprise monetisation models.",
+      "We work with telecom operators and technology businesses on network expansion, commercial strategy and enterprise monetisation.",
     icon: RadioTower,
   },
   {
@@ -149,7 +157,7 @@ export const industries = [
     category: "Industrial Sector",
     title: "Manufacturing & Industry",
     summary:
-      "Optimising import substitution strategies, cement and steel production lines, local raw material value-add and factory capacity utilisation.",
+      "We help manufacturers improve production planning, local sourcing, factory utilisation and cost discipline.",
     icon: Factory,
   },
   {
@@ -157,7 +165,7 @@ export const industries = [
     category: "Health & Biotech",
     title: "Healthcare & Life Sciences",
     summary:
-      "Modernising pharmaceutical supply networks, hospital group capital restructuring and sovereign public-private health infrastructure concessions.",
+      "We support hospital groups, distributors and health providers with supply chain design, capital planning and operating models.",
     icon: HeartPulse,
   },
   {
@@ -165,7 +173,7 @@ export const industries = [
     category: "Consumer Markets",
     title: "Retail & Consumer Goods",
     summary:
-      "Route-to-market strategies for FMCG brands across informal retail corridors, multi-tier pricing models and regional packaging efficiency.",
+      "We help consumer brands strengthen route-to-market, pricing and distribution across formal and informal retail channels.",
     icon: ShoppingBag,
   },
   {
@@ -173,7 +181,7 @@ export const industries = [
     category: "Power & Transport",
     title: "Logistics & Energy",
     summary:
-      "Structuring port terminal operations, captive solar microgrid deployment for heavy industry and cross-border freight transit corridors.",
+      "We advise logistics and energy businesses on operational efficiency, infrastructure investment and cross-border expansion.",
     icon: Zap,
   },
 ] satisfies Industry[];

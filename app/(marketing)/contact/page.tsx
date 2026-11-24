@@ -25,7 +25,7 @@ export default function ContactPage() {
       <PageHeader
         eyebrow="Contact"
         title="Start a conversation with our senior advisors."
-        description="Tell us about the mandate, the decision in front of you and the timing that matters. We will direct your enquiry to the right senior advisor."
+        description="Share the decision in front of you and the timing that matters. We will route your enquiry to the right senior advisor."
       />
 
       <Section tone="canvas">
@@ -35,7 +35,7 @@ export default function ContactPage() {
               <SectionHeading
                 eyebrow="Enquiries"
                 title="Send us an enquiry"
-                description="Complete the form and our senior advisors will review your message. Fields marked with an asterisk are required."
+                description="Complete the form below. Fields marked with an asterisk are required."
               />
               <EnquiryForm className="mt-8" />
             </div>

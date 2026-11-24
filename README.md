@@ -38,7 +38,7 @@ All variables are public because the browser talks directly to FormSubmit. No se
 | `NEXT_PUBLIC_CONTACT_EMAIL` | No | Public contact email. Defaults to `contact@axiombridge.com`. |
 | `NEXT_PUBLIC_CONTACT_PHONE` | No | Public telephone number. Defaults to `+234 1 800 2946`. |
 | `NEXT_PUBLIC_LINKEDIN_URL` | No | Optional LinkedIn profile. The footer link is omitted when blank. |
-| `NEXT_PUBLIC_FORMSUBMIT_RECIPIENT` | Email delivery | FormSubmit recipient email address or the alias issued after activation. The form is disabled until this is set. |
+| `NEXT_PUBLIC_FORMSUBMIT_RECIPIENT` | No | Optional override. Leave blank to send enquiries to `NEXT_PUBLIC_CONTACT_EMAIL`. After FormSubmit activation, you can use the issued alias here. |
 | `NEXT_PUBLIC_FORMSUBMIT_SUBJECT` | No | Subject line for enquiry notifications. |
 | `NEXT_PUBLIC_FORMSUBMIT_CAPTCHA` | No | Set to `false` only to disable FormSubmit's reCAPTCHA. Enabled by default. |
 | `NEXT_PUBLIC_FORMSUBMIT_BLACKLIST` | No | Optional comma-separated spam phrases ignored by FormSubmit. |
@@ -92,7 +92,7 @@ components/
   marketing/                  PageHeader, hero, grids, CTA, ContactDetails
   ui/                         Button, Input, Select, Textarea, Card, Sheet, etc.
 content/
-  company.ts                  Metrics, principles, practice areas, industries
+  company.ts                  Approach highlights, principles, practice areas, industries
   enquiry.ts                  Service options and enquiry copy
   navigation.ts               Primary navigation
 lib/
@@ -132,10 +132,10 @@ The form primitives (`Input`, `Textarea`, `Select`, `FormField`, `StatusAlert`) 
 ### Flow
 
 1. `EnquiryForm` validates all fields with the shared Zod schema through React Hook Form.
-2. On submit it POSTs JSON to `https://formsubmit.co/ajax/{recipient}`.
+2. On submit it POSTs JSON to `https://formsubmit.co/ajax/{recipient}`. By default, `recipient` is the configured contact email (`NEXT_PUBLIC_CONTACT_EMAIL`); an optional override can be supplied.
 3. The browser stays on `/contact` throughout the request.
-4. The form shows a disabled loading state while the request is in flight.
-5. Explicit success and error feedback is rendered inline.
+4. A disabled submit button and an in-flight ref prevent duplicate submissions while the request is processing.
+5. Explicit success and error feedback is rendered inline, and only after FormSubmit confirms success.
 
 ### Handling FormSubmit responses
 
@@ -157,13 +157,35 @@ The contact form includes an inline privacy notice explaining that details are u
 
 ### Activating FormSubmit
 
-1. Set `NEXT_PUBLIC_FORMSUBMIT_RECIPIENT` to the intended inbox.
-2. Submit one test enquiry. FormSubmit will email that inbox with an activation link.
-3. Complete activation. FormSubmit will issue a random alias you can optionally use in place of the raw address.
-4. Redeploy with the alias if you choose to use it.
-5. Confirm a second test enquiry arrives and that success feedback appears on the page.
+The form targets the existing configured contact email, so no recipient setup is required before the first test. FormSubmit still requires one-time activation:
 
-Until a recipient is configured, the form explains that delivery is not configured and the submit button is disabled.
+1. Run the site locally or use the deployed site.
+2. Submit one genuine test enquiry using the form.
+3. FormSubmit will email the recipient inbox with an activation link.
+4. Open that email and confirm the address. Until this is done, the form will show FormSubmit's activation error rather than claiming success.
+5. After activation, submit a second test enquiry and confirm it arrives in the inbox.
+6. Optionally set `NEXT_PUBLIC_FORMSUBMIT_RECIPIENT` to the random alias FormSubmit issues, then redeploy. This hides the raw address from the form endpoint.
+
+No credentials are needed. Do not treat the form as live until activation is complete and a test email has been received.
+
+### Testing the form locally
+
+1. Copy `.env.example` to `.env.local` and leave `NEXT_PUBLIC_FORMSUBMIT_RECIPIENT` blank.
+2. Run `npm run dev` and open `http://localhost:3000/contact`.
+3. Submit the form with empty required fields — inline validation errors should appear and no request should be sent.
+4. Enter an invalid email and confirm the email error.
+5. Fill all fields and submit. Check the browser Network tab for a `POST` to `https://formsubmit.co/ajax/<contact-email>`.
+6. Confirm the button shows the loading state and cannot be submitted twice.
+7. On first use, expect FormSubmit's activation message. After activation, expect the success message and an email in the inbox.
+8. For automated checks, run `npm test`; the form tests mock the fetch call and cover validation, loading, success, provider rejection and network errors.
+
+### Testing after deployment
+
+1. Open `https://axiom-bridge-consulting.vercel.app/contact`.
+2. Submit a test enquiry after activation.
+3. Confirm the success message appears without leaving the page.
+4. Confirm the email arrives in the configured inbox.
+5. Check the browser console for errors and test on a narrow mobile viewport.
 
 ## Design system
 
@@ -191,10 +213,10 @@ Custom `text-*` type tokens are registered with `tailwind-merge` in `lib/utils.t
 
 Import the repository into Vercel. No custom domain is required.
 
-1. Set the environment variables above in the Vercel project settings.
+1. Set the public environment variables above in the Vercel project settings. Most can remain at their documented defaults.
 2. Leave `NEXT_PUBLIC_SITE_URL` blank to use the automatic `*.vercel.app` URL.
-3. Set `NEXT_PUBLIC_FORMSUBMIT_RECIPIENT` and complete FormSubmit activation.
-4. Deploy. Vercel detects Next.js automatically.
+3. Leave `NEXT_PUBLIC_FORMSUBMIT_RECIPIENT` blank to use the configured contact email, then complete FormSubmit activation by submitting one test enquiry.
+4. Deploy. Vercel detects Next.js automatically. A custom domain is not required.
 
 A typical production check:
 
@@ -210,4 +232,5 @@ npm run build
 - Content is static and maintained in `content/`.
 - No CMS, database, blog, Insights page, custom email API or backend service is present.
 - The hero photograph is a reference asset and should be replaced with final licensed photography.
-- FormSubmit delivery becomes live only after a recipient is configured and activated.
+- Unverified business statistics have been removed; the homepage strip now presents qualitative approach highlights.
+- FormSubmit delivery becomes live only after the recipient inbox has been activated and a test email has been received.

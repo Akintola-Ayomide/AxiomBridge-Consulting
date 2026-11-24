@@ -12,9 +12,9 @@ describe("FormSubmit configuration", () => {
     vi.unstubAllEnvs();
   });
 
-  it("returns null until a recipient is configured", () => {
+  it("uses the configured contact email as the default recipient", () => {
     vi.stubEnv("NEXT_PUBLIC_FORMSUBMIT_RECIPIENT", "");
-    expect(getFormSubmitConfig()).toBeNull();
+    expect(getFormSubmitConfig().recipient).toBe("contact@axiombridge.com");
   });
 
   it("uses defaults for optional settings", () => {

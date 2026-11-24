@@ -8,7 +8,6 @@ import {
   ENQUIRY_ERROR_MESSAGE,
   ENQUIRY_NETWORK_ERROR,
   ENQUIRY_SUCCESS_MESSAGE,
-  FORM_SUBMIT_NOT_CONFIGURED_MESSAGE,
   getServiceLabel,
   serviceOptions,
 } from "@/content/enquiry";
@@ -49,6 +48,7 @@ type EnquiryFormProps = {
 
 function EnquiryForm({ className }: EnquiryFormProps) {
   const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle" });
+  const [isProcessing, setIsProcessing] = useState(false);
   const config = getFormSubmitConfig();
 
   const form = useForm<EnquiryInput>({
@@ -73,14 +73,11 @@ function EnquiryForm({ className }: EnquiryFormProps) {
   } = form;
 
   const onSubmit = handleSubmit(async (values) => {
-    if (!config) {
-      setSubmitState({
-        status: "error",
-        message: FORM_SUBMIT_NOT_CONFIGURED_MESSAGE,
-      });
+    if (isProcessing) {
       return;
     }
 
+    setIsProcessing(true);
     setSubmitState({ status: "idle" });
 
     try {
@@ -121,22 +118,14 @@ function EnquiryForm({ className }: EnquiryFormProps) {
       });
     } catch {
       setSubmitState({ status: "error", message: ENQUIRY_NETWORK_ERROR });
+    } finally {
+      setIsProcessing(false);
     }
   });
 
   return (
     <Card className={cn("p-6 md:p-8", className)}>
       <form onSubmit={onSubmit} noValidate aria-busy={isSubmitting}>
-        {!config ? (
-          <StatusAlert
-            tone="error"
-            title="Delivery not configured"
-            className="mb-6"
-          >
-            {FORM_SUBMIT_NOT_CONFIGURED_MESSAGE}
-          </StatusAlert>
-        ) : null}
-
         {submitState.status === "success" ? (
           <StatusAlert tone="success" title="Enquiry received" className="mb-6">
             {submitState.message}
@@ -318,11 +307,7 @@ function EnquiryForm({ className }: EnquiryFormProps) {
         </div>
 
         <div className="mt-8 flex flex-wrap items-center gap-4">
-          <Button
-            type="submit"
-            size="lg"
-            disabled={isSubmitting || !config}
-          >
+          <Button type="submit" size="lg" disabled={isSubmitting || isProcessing}>
             {isSubmitting ? (
               <>
                 <Loader2 aria-hidden="true" className="animate-spin" />

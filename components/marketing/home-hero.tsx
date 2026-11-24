@@ -1,13 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Landmark } from "lucide-react";
-import { metrics } from "@/content/company";
+import { approachHighlights } from "@/content/company";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { Highlight } from "@/components/ui/highlight";
 import { IconTile } from "@/components/ui/icon-tile";
-import { Metric } from "@/components/ui/metric";
 
 function HomeHero() {
   return (
@@ -22,8 +22,9 @@ function HomeHero() {
             </h1>
 
             <p className="mt-6 max-w-xl text-body-lg text-slate">
-              We help organisations navigate complexity, strengthen performance
-              and unlock sustainable growth across Nigeria and West Africa.
+              We work with leadership teams in Nigeria and West Africa to turn
+              complex decisions into clear priorities, practical plans and
+              steady execution.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -68,12 +69,12 @@ function HomeHero() {
           </div>
         </div>
 
-        <dl className="mt-14 grid grid-cols-2 gap-x-6 gap-y-8 rounded-sm border border-line bg-surface-elevated p-6 shadow-card md:grid-cols-4 md:p-8">
-          {metrics.map((metric) => (
-            <Metric
-              key={metric.label}
-              value={metric.value}
-              label={metric.label}
+        <dl className="mt-14 grid grid-cols-1 gap-x-6 gap-y-8 rounded-sm border border-line bg-surface-elevated p-6 shadow-card sm:grid-cols-2 lg:grid-cols-4 md:p-8">
+          {approachHighlights.map((highlight) => (
+            <Highlight
+              key={highlight.label}
+              value={highlight.value}
+              label={highlight.label}
             />
           ))}
         </dl>

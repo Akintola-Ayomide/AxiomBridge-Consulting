@@ -9,7 +9,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 export const metadata: Metadata = {
   title: "Industries",
   description:
-    "Sector expertise across financial services, technology and telecoms, manufacturing, healthcare, consumer goods, logistics and energy in West Africa.",
+    "Sector experience across financial services, technology and telecoms, manufacturing, healthcare, consumer goods, logistics and energy in West Africa.",
   alternates: { canonical: "/industries" },
 };
 
@@ -18,8 +18,8 @@ export default function IndustriesPage() {
     <>
       <PageHeader
         eyebrow="Industry practices"
-        title="Deep sector specialisation"
-        description="Navigating regulatory landscapes, macroeconomic shifts and structural transitions across West Africa's primary growth engines."
+        title="Sector context that informs better decisions"
+        description="We work across the sectors that shape regional economies, bringing relevant operating context to every mandate."
       />
 
       <Section tone="canvas" aria-labelledby="industries-heading">
@@ -28,7 +28,7 @@ export default function IndustriesPage() {
             id="industries-heading"
             eyebrow="Sectors"
             title="Where we work"
-            description="Sector fluency is not a backdrop to our advice. It is the basis for it."
+            description="Understanding how each sector operates is the starting point for relevant, practical advice."
             action={{ label: "Talk to an advisor", href: "/contact" }}
           />
           <IndustryGrid className="mt-10 lg:mt-12" />

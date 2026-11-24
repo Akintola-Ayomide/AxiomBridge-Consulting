@@ -43,8 +43,7 @@ async function SiteFooter() {
 
             <p className="max-w-sm font-sans text-body-sm text-on-navy-muted">
               Strategic thinking. Practical solutions. Sustainable growth.
-              Empowering organisations across West Africa to unlock long-term
-              resilience and value.
+              Independent advice for organisations across West Africa.
             </p>
 
             {linkedin ? (

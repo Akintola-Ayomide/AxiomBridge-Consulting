@@ -23,9 +23,9 @@ export default function HomePage() {
           <SectionHeading
             id="principles-heading"
             eyebrow="Who we are"
-            title="Strategic clarity in an evolving market"
+            title="Clear thinking for complex decisions"
             titleClassName="max-w-2xl"
-            description="AxiomBridge is an independent management consulting firm providing boardroom advisory, rigorous operational diagnostics and transformational growth frameworks designed for West African market realities."
+            description="AxiomBridge is an independent management consulting firm working with leadership teams across Nigeria and West Africa. We combine market context, operational insight and disciplined execution so organisations can act with confidence."
             action={{ label: "Learn about our firm", href: "/about" }}
           />
           <PrinciplesGrid className="mt-10 lg:mt-12" />

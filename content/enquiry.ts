@@ -24,13 +24,10 @@ export function getServiceLabel(value: string) {
 }
 
 export const ENQUIRY_SUCCESS_MESSAGE =
-  "Thank you. Your enquiry has been received. A senior advisor will be in touch shortly.";
+  "Thank you. Your enquiry has been submitted. We will respond to the email address you provided.";
 
 export const ENQUIRY_ERROR_MESSAGE =
   "We could not send your enquiry. Please email us directly or try again.";
 
 export const ENQUIRY_NETWORK_ERROR =
-  "We could not reach the server. Check your connection and try again, or email us directly.";
-
-export const FORM_SUBMIT_NOT_CONFIGURED_MESSAGE =
-  "Enquiry delivery is not configured yet. Please email us directly until this form is activated.";
+  "We could not reach the submission service. Check your connection and try again, or email us directly.";

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   ENQUIRY_NETWORK_ERROR,
@@ -123,15 +123,45 @@ describe("EnquiryForm with FormSubmit", () => {
     expect(await screen.findByText(ENQUIRY_NETWORK_ERROR)).toBeInTheDocument();
   });
 
-  it("disables submission and explains missing configuration", async () => {
+  it("falls back to the configured contact email when no override is set", async () => {
     vi.stubEnv("NEXT_PUBLIC_FORMSUBMIT_RECIPIENT", "");
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: "true" }),
+    });
+
     const user = userEvent.setup();
     render(<EnquiryForm />);
-
-    expect(screen.getByText("Delivery not configured")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /send enquiry/i })).toBeDisabled();
-
     await fillValidForm(user);
-    expect(fetchMock).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button", { name: /send enquiry/i }));
+
+    expect(await screen.findByText(ENQUIRY_SUCCESS_MESSAGE)).toBeInTheDocument();
+    const [url] = fetchMock.mock.calls[0] as [string];
+    expect(url).toBe("https://formsubmit.co/ajax/contact@axiombridge.com");
+  });
+
+  it("prevents duplicate submissions while a request is processing", async () => {
+    let resolveFetch!: (value: unknown) => void;
+    fetchMock.mockImplementation(
+      () => new Promise((resolve) => { resolveFetch = resolve; }),
+    );
+
+    const user = userEvent.setup();
+    render(<EnquiryForm />);
+    await fillValidForm(user);
+
+    const form = document.querySelector("form");
+    if (!form) throw new Error("form not found");
+
+    fireEvent.submit(form);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+
+    fireEvent.submit(form);
+
+    expect(screen.getByRole("button", { name: /sending enquiry/i })).toBeDisabled();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    resolveFetch({ ok: true, json: async () => ({ success: "true" }) });
+    await screen.findByText(ENQUIRY_SUCCESS_MESSAGE);
   });
 });

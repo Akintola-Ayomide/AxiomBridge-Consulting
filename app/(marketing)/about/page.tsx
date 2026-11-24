@@ -11,7 +11,7 @@ import { siteConfig } from "@/lib/site";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "AxiomBridge is an independent management consulting firm providing boardroom advisory, operational diagnostics and transformational growth frameworks across West Africa.",
+    "Learn how AxiomBridge works with leadership teams in Nigeria and West Africa to make sound decisions, improve execution and build durable capacity for growth.",
   alternates: { canonical: "/about" },
 };
 
@@ -30,22 +30,22 @@ export default function AboutPage() {
             <div className="lg:col-span-4">
               <Eyebrow>Our mandate</Eyebrow>
               <h2 className="mt-3 max-w-sm font-display text-headline-md font-medium text-navy">
-                Independent advice, built for the region.
+                Independent advice, grounded in the region.
               </h2>
             </div>
 
             <div className="space-y-5 text-body-lg text-slate lg:col-span-8">
               <p>
-                AxiomBridge provides boardroom advisory, rigorous operational
-                diagnostics and transformational growth frameworks designed for
-                West African market realities.
+                AxiomBridge works with leadership teams on the decisions that
+                shape performance: where to compete, how to operate and how to
+                respond to change. Our advice draws on market context and
+                operational evidence, not generic playbooks.
               </p>
               <p>
-                Our work is grounded in evidence, delivered with execution
-                rigour and designed to create value that outlasts the
-                engagement. We work alongside leadership teams across financial
-                services, industry, consumer markets, technology, healthcare and
-                energy.
+                We stay involved until recommendations are translated into
+                priorities, owners and practical next steps. Our work spans
+                financial services, industry, consumer markets, technology,
+                healthcare and energy.
               </p>
             </div>
           </div>
@@ -58,7 +58,7 @@ export default function AboutPage() {
             id="principles-heading"
             eyebrow="Our principles"
             title="How we work"
-            description="Three commitments shape every diagnostic, recommendation and implementation mandate."
+            description="Three commitments shape how we advise, recommend and support implementation."
             action={{ label: "Explore our services", href: "/services" }}
           />
           <PrinciplesGrid className="mt-10 lg:mt-12" />

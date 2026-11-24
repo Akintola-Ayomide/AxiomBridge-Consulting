@@ -6,7 +6,7 @@ export const siteConfig = {
   legalName: "AxiomBridge Consulting Limited",
   title: "AxiomBridge Consulting | Strategic Advisory for West Africa",
   description:
-    "AxiomBridge is an independent management consulting firm providing boardroom advisory, operational diagnostics and transformational growth frameworks for West African market realities.",
+    "AxiomBridge is an independent management consulting firm helping leadership teams in Nigeria and West Africa make sound decisions, improve execution and build durable capacity for growth.",
   shortDescription:
     "Strategic thinking. Practical solutions. Sustainable growth.",
   url: env.siteUrl,
