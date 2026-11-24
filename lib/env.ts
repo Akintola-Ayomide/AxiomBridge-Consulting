@@ -1,18 +1,11 @@
 const DEFAULT_CONTACT_EMAIL = "contact@axiombridge.com";
 const DEFAULT_CONTACT_PHONE = "+234 1 800 2946";
+const LOCAL_FALLBACK = "http://localhost:3000";
 
 function readSiteUrl(): URL {
-  const value = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-
-  if (!value) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error(
-        "NEXT_PUBLIC_SITE_URL is required in production. Add it to your environment before building.",
-      );
-    }
-
-    return new URL("http://localhost:3000");
-  }
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const vercelUrl = process.env.VERCEL_URL?.trim();
+  const value = explicit || (vercelUrl ? `https://${vercelUrl}` : LOCAL_FALLBACK);
 
   try {
     const url = new URL(value);
@@ -23,9 +16,13 @@ function readSiteUrl(): URL {
 
     return url;
   } catch {
-    throw new Error(
-      "NEXT_PUBLIC_SITE_URL must be a valid absolute URL, for example https://axiombridge.com.",
-    );
+    if (explicit) {
+      throw new Error(
+        "NEXT_PUBLIC_SITE_URL must be a valid absolute URL, for example https://axiombridge.com.",
+      );
+    }
+
+    return new URL(LOCAL_FALLBACK);
   }
 }
 
@@ -67,8 +64,8 @@ function readLinkedInUrl(): URL | null {
 }
 
 /**
- * Public environment values. These are bundled into the client on purpose.
- * Server-only secrets belong in a separate module that imports "server-only".
+ * Public environment values. Vercel's automatic `VERCEL_URL` is used when no
+ * explicit site URL is set, so a custom domain is never required.
  */
 export const env = {
   siteUrl: readSiteUrl(),

@@ -42,8 +42,8 @@ export const enquirySchema = z.object({
     error: "You must consent before submitting an enquiry.",
   }),
 
-  // Honeypot field. Bots tend to fill every input; real users never see it.
-  website: z.string().max(200).optional(),
+  // FormSubmit honeypot. Bots tend to fill every input; real users never see it.
+  _honey: z.string().max(200).optional(),
 });
 
 export type EnquiryInput = z.infer<typeof enquirySchema>;

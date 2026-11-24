@@ -8,7 +8,6 @@ import {
   Phone,
 } from "lucide-react";
 import { practiceAreas } from "@/content/company";
-import { legalPolicies } from "@/content/legal";
 import { primaryNavigation } from "@/content/navigation";
 import { siteConfig } from "@/lib/site";
 import { Container } from "@/components/layout/container";
@@ -144,17 +143,7 @@ async function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col gap-4 border-t border-ivory/10 pt-6 font-sans text-body-sm text-on-navy-muted md:flex-row md:items-center md:justify-between">
-          <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            {legalPolicies.map((policy) => (
-              <li key={policy.slug}>
-                <Link href={policy.href} className={linkClass}>
-                  {policy.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-
+        <div className="mt-14 border-t border-ivory/10 pt-6 text-right font-sans text-body-sm text-on-navy-muted">
           <p>
             © {year} {siteConfig.legalName}. All rights reserved.
           </p>

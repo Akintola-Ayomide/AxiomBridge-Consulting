@@ -1,19 +1,20 @@
 # AxiomBridge Consulting
 
-Production-ready foundation and enquiry system for the AxiomBridge Consulting corporate website.
+Production-ready Next.js website for AxiomBridge Consulting.
 
-The application shell, design tokens, route structure, SEO plumbing, reusable components and a complete contact enquiry flow are implemented. The remaining marketing page content will be built on top of this base.
+The project contains exactly five pages — Home, About, Services, Industries and Contact — with static, structured content maintained inside the application. The contact form is delivered with FormSubmit via a direct AJAX request; there is no database, CMS, custom API or other backend infrastructure.
 
 ## Stack
 
-- **Framework:** Next.js 16 (App Router, React Server Components, Cache Components)
+- **Framework:** Next.js 16 App Router with React Server Components and Cache Components
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS v4 with CSS-first design tokens
 - **UI primitives:** shadcn-style components built on Radix UI
-- **Forms:** React Hook Form + Zod with shared client/server validation
-- **Email:** Resend via a server-only Route Handler
+- **Forms:** React Hook Form + Zod with client-side validation
+- **Form delivery:** FormSubmit AJAX endpoint
 - **Icons:** Lucide
-- **Fonts:** Playfair Display (display) and Plus Jakarta Sans (body) via `next/font`
+- **Fonts:** Playfair Display and Plus Jakarta Sans via `next/font`
+- **Deployment:** Vercel, using the automatically assigned `vercel.app` domain
 
 ## Getting started
 
@@ -29,17 +30,20 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Environment variables
 
+All variables are public because the browser talks directly to FormSubmit. No server-only secrets are required.
+
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | Production | Canonical site origin used by metadata, sitemap and robots. Falls back to `http://localhost:3000` in development. |
+| `NEXT_PUBLIC_SITE_URL` | No | Canonical site origin. On Vercel, the automatic `VERCEL_URL` is used when this is blank. Falls back to `http://localhost:3000` locally. |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | No | Public contact email. Defaults to `contact@axiombridge.com`. |
 | `NEXT_PUBLIC_CONTACT_PHONE` | No | Public telephone number. Defaults to `+234 1 800 2946`. |
-| `NEXT_PUBLIC_LINKEDIN_URL` | No | Optional LinkedIn profile URL. The footer link is omitted when blank. |
-| `RESEND_API_KEY` | Email delivery | Resend API key. Server-only; never prefix with `NEXT_PUBLIC_`. |
-| `ENQUIRY_FROM_EMAIL` | Email delivery | Sender address that must be verified in Resend. |
-| `ENQUIRY_TO_EMAIL` | Email delivery | Inbox that receives enquiry notifications. |
+| `NEXT_PUBLIC_LINKEDIN_URL` | No | Optional LinkedIn profile. The footer link is omitted when blank. |
+| `NEXT_PUBLIC_FORMSUBMIT_RECIPIENT` | Email delivery | FormSubmit recipient email address or the alias issued after activation. The form is disabled until this is set. |
+| `NEXT_PUBLIC_FORMSUBMIT_SUBJECT` | No | Subject line for enquiry notifications. |
+| `NEXT_PUBLIC_FORMSUBMIT_CAPTCHA` | No | Set to `false` only to disable FormSubmit's reCAPTCHA. Enabled by default. |
+| `NEXT_PUBLIC_FORMSUBMIT_BLACKLIST` | No | Optional comma-separated spam phrases ignored by FormSubmit. |
 
-Public values are validated in `lib/env.ts`. Server-only email credentials are read lazily in `lib/env.server.ts`, which imports `server-only` so it cannot be bundled into a Client Component. All three email variables must be set before the enquiry endpoint will send mail; until then it returns a generic `503` response. No real credentials or addresses are committed.
+Placeholders are provided in `.env.example` and `.env.local`. No real credentials or addresses are committed.
 
 ## Scripts
 
@@ -56,35 +60,29 @@ npm run test:watch # Run Vitest in watch mode
 
 ## Routes
 
-| Route | Status |
+| Route | Purpose |
 | --- | --- |
-| `/` | Minimal home composition: hero, credibility metrics, principles and closing CTA |
-| `/about` | Foundation page |
-| `/services` | Foundation page with all five practice areas and anchor links |
-| `/industries` | Foundation page with six sector cards |
-| `/contact` | Enquiry form, office details and direct email/telephone links |
-| `/api/enquiries` | POST-only Route Handler for validated enquiry submissions |
-| `/legal/[policy]` | Three legal routes, generated statically. Marked `noindex` while copy is in preparation. |
-| `/robots.txt`, `/sitemap.xml` | Generated from site configuration |
-| 404 | Branded not-found page |
+| `/` | Home |
+| `/about` | About |
+| `/services` | Services, with practice-area anchors |
+| `/industries` | Industries |
+| `/contact` | Contact details and enquiry form |
 
-There is deliberately no Insights route, navigation item or homepage section.
+There are no Insights, article, blog or legal routes. `robots.txt`, `sitemap.xml`, the branded icon and the 404 page are generated by Next.js as system routes, not content pages.
 
 ## Architecture
 
 ```text
 app/
-  api/enquiries/route.ts      Secure enquiry submission endpoint
   layout.tsx                  Root fonts, metadata, viewport
   globals.css                 Tailwind v4 tokens and global styles
   (marketing)/
     layout.tsx                Header, skip link, main landmark, footer
-    page.tsx                  Home composition
+    page.tsx                  Home
     about/page.tsx
     services/page.tsx
     industries/page.tsx
     contact/page.tsx
-    legal/[policy]/page.tsx
   not-found.tsx
   robots.ts
   sitemap.ts
@@ -94,138 +92,122 @@ components/
   marketing/                  PageHeader, hero, grids, CTA, ContactDetails
   ui/                         Button, Input, Select, Textarea, Card, Sheet, etc.
 content/
-  company.ts                  Typed metrics, principles, practice areas, industries
-  enquiry.ts                  Service options and response copy
-  legal.ts                    Legal route metadata
+  company.ts                  Metrics, principles, practice areas, industries
+  enquiry.ts                  Service options and enquiry copy
   navigation.ts               Primary navigation
 lib/
-  email/                      HTML escaping and Resend enquiry templates
-  server/                     Rate limiter and client-key helper
-  validation/enquiry.ts       Shared Zod schema
+  formsubmit.ts               FormSubmit config, endpoint and response helpers
   env.ts                      Validated public environment values
-  env.server.ts               Validated server-only email configuration
   site.ts                     Site configuration and contact details
   navigation.ts               Active-route helper
   utils.ts                    `cn` with project-aware tailwind-merge config
-tests/                          Schema, endpoint, email and form tests
+tests/                          Schema, FormSubmit and form component tests
 ```
 
-Copy and structured content live in `content/`, not inside page components. Reusable presentation lives in `components/`, and route files compose those pieces.
+Structured copy lives in `content/`. Pages compose reusable components; no page contains one giant block of markup.
 
 ## Server and client boundaries
 
 Server Components are the default. Client components are:
 
 - `components/layout/desktop-nav.tsx` — active route state
-- `components/layout/mobile-nav.tsx` — mobile navigation and open/close behaviour
-- `components/ui/sheet.tsx` — Radix Dialog-based sheet primitive
-- `components/forms/enquiry-form.tsx` — React Hook Form, validation feedback and `fetch` submission
+- `components/layout/mobile-nav.tsx` — mobile navigation
+- `components/ui/sheet.tsx` — Radix Dialog sheet primitive
+- `components/forms/enquiry-form.tsx` — React Hook Form, validation and AJAX submission
 
-The form primitives (`Input`, `Textarea`, `Select`, `FormField`, `StatusAlert`) are presentational and become part of the client boundary when imported by `EnquiryForm`. Buttons, cards, headings, grids, sections, the footer and all email/rate-limit logic remain server-side. The Route Handler is the only place that reads Resend credentials or sends email.
+The form primitives (`Input`, `Textarea`, `Select`, `FormField`, `StatusAlert`) are presentational and join the client boundary when imported by `EnquiryForm`. There is no Route Handler, server action, database or CMS.
 
 ## Enquiry system
 
+### Fields
+
+- Full name
+- Business email
+- Company name
+- Service of interest
+- Message
+- Required consent checkbox
+- Hidden FormSubmit honeypot (`_honey`)
+
 ### Flow
 
-1. `EnquiryForm` uses React Hook Form with the Zod resolver from `lib/validation/enquiry.ts`.
-2. On submit it sends JSON to `POST /api/enquiries` with `X-Requested-With: XMLHttpRequest`.
-3. The Route Handler revalidates the payload with the same Zod schema.
-4. It sends two emails through Resend: a notification to `ENQUIRY_TO_EMAIL` with the customer as reply-to, and a confirmation to the customer with the company inbox as reply-to.
-5. The form presents loading, success, validation-error and delivery-error states without reloading the page.
+1. `EnquiryForm` validates all fields with the shared Zod schema through React Hook Form.
+2. On submit it POSTs JSON to `https://formsubmit.co/ajax/{recipient}`.
+3. The browser stays on `/contact` throughout the request.
+4. The form shows a disabled loading state while the request is in flight.
+5. Explicit success and error feedback is rendered inline.
 
-### Endpoint contract
+### Handling FormSubmit responses
 
-- **Success:** `200` with `{ "success": true, "message": "..." }`
-- **Validation failure:** `400` with `{ "success": false, "message": "...", "fieldErrors": { ... } }`
-- **Unsafe request:** `403` (origin or request header), `415` (non-JSON), `413` (oversized body)
-- **Rate limited:** `429` with a `Retry-After` header
-- **Email not configured:** `503`
-- **Email delivery failure:** `502`
+FormSubmit can return HTTP `200` even when a submission is rejected, using `success: "false"` as a string. The form therefore only treats `success === "true"` or boolean `true` as success; every other response is shown as an error, using the provider message when available.
 
-All responses include `Cache-Control: no-store`. Field errors contain field names and messages only; submitted values are never echoed.
+Network failures, invalid JSON and submission rejections all keep the form values intact so the user does not lose their message.
 
-### Spam protection and logging
+### Spam protection
 
-- Hidden honeypot `website` field. Bots that fill it receive a normal success response but no email is sent.
-- Five submissions per client per ten minutes, keyed by a salted SHA-256 hash of the forwarded IP. Raw IP addresses are not stored.
-- Origin validation, required `X-Requested-With` header, JSON content-type check and a 16 KB body limit.
-- `escapeHtml` protects the HTML email templates from injected markup.
-- Errors are logged with event names and safe reason codes only. Customer names, emails, message bodies and provider errors are never written to logs.
+- FormSubmit's `_honey` honeypot field is always included and hidden with CSS.
+- FormSubmit's reCAPTCHA remains enabled by default. Set `NEXT_PUBLIC_FORMSUBMIT_CAPTCHA=false` only if you intentionally disable it.
+- Optional `_blacklist` phrases can be configured through `NEXT_PUBLIC_FORMSUBMIT_BLACKLIST`.
+- `_replyto` is set to the customer's email so replies land in the right inbox.
+- Required consent is validated by Zod before submission.
 
-The limiter is in-process and suitable for a single Node.js instance. For multiple serverless instances, swap `lib/server/rate-limit.ts` for a shared store such as Redis while keeping the same `check(key)` interface.
+### Privacy notice
 
-### Privacy and consent
+The contact form includes an inline privacy notice explaining that details are used only to respond to the enquiry, are not sold or shared, and may be withdrawn by emailing the configured contact address. No separate legal page is required.
 
-The form links to `/legal/privacy-policy` and requires an explicit consent checkbox before submission. The consent state is validated again on the server. The linked legal page is still a placeholder and must be replaced with approved policy copy before public launch.
+### Activating FormSubmit
 
-### Activating email delivery
+1. Set `NEXT_PUBLIC_FORMSUBMIT_RECIPIENT` to the intended inbox.
+2. Submit one test enquiry. FormSubmit will email that inbox with an activation link.
+3. Complete activation. FormSubmit will issue a random alias you can optionally use in place of the raw address.
+4. Redeploy with the alias if you choose to use it.
+5. Confirm a second test enquiry arrives and that success feedback appears on the page.
 
-1. Create a Resend account and verify the domain used for `ENQUIRY_FROM_EMAIL`.
-2. Copy `.env.example` to `.env.local` and set `RESEND_API_KEY`, `ENQUIRY_FROM_EMAIL` and `ENQUIRY_TO_EMAIL` in your deployment environment.
-3. Replace the default public contact details with the real company values.
-4. Run `npm test`, `npm run check` and `npm run build`.
-5. Submit a test enquiry and confirm both emails arrive. Check spam folders and Resend logs.
-
-No credentials or addresses are committed. Until the three server variables are set, the endpoint intentionally returns `503`.
-
-### Tests
-
-`npm test` runs 24 tests covering:
-
-- valid schema parsing and trimming
-- missing fields, malformed email, invalid service, short message and missing consent
-- valid endpoint submissions and both outbound emails
-- honeypot spam, rate limiting, unsafe requests and oversized bodies
-- redacted logging on delivery failure
-- missing email configuration
-- form validation, loading, success and server-error states
-- HTML escaping in email templates
+Until a recipient is configured, the form explains that delivery is not configured and the submit button is disabled.
 
 ## Design system
 
-All tokens are defined in `app/globals.css` using Tailwind CSS v4's `@theme` blocks.
+Tokens live in `app/globals.css` using Tailwind CSS v4 `@theme` blocks.
 
 - **Palette:** warm ivory canvas, navy surfaces, muted gold accents and slate body text
 - **Type scale:** `text-display-*`, `text-headline-*`, `text-title-*`, `text-body-*`, `text-label-*`
 - **Spacing:** semantic `margin`, `gutter` and `section` rhythm tokens
-- **Breakpoints:** mobile-first with tablet at `md` (768px) and desktop navigation at `lg` (1024px)
+- **Breakpoints:** mobile-first, with desktop navigation at `lg` (1024px)
 - **Elevation:** `shadow-card`, `shadow-drawer`, `shadow-modal`
 
-Because the type scale uses custom `text-*` names, `lib/utils.ts` extends `tailwind-merge` to keep font sizes from being mistaken for text colours. Keep that config in sync when new type tokens are added.
-
-## Images and fonts
-
-- Reference photography is stored locally under `public/images/` and rendered with `next/image`.
-- Image formats, device sizes and cache lifetime are configured in `next.config.ts`.
-- Fonts are loaded with `next/font/google`, exposed as CSS variables and mapped to `font-sans` / `font-display`.
+Custom `text-*` type tokens are registered with `tailwind-merge` in `lib/utils.ts` so they are not mistaken for text colours.
 
 ## SEO and accessibility
 
-- Global metadata, Open Graph and Twitter card data use `NEXT_PUBLIC_SITE_URL`.
+- Metadata, Open Graph and Twitter card data use the resolved site URL.
 - Canonical URLs are set per page.
-- `sitemap.xml` and `robots.txt` are generated from `lib/site.ts`.
-- Legal routes are intentionally `noindex` until final policy copy is supplied.
+- `sitemap.xml` lists only the five content pages.
+- `robots.txt` is generated from site configuration.
 - The shell includes a skip link, landmark regions, visible focus states and reduced-motion handling.
-- Custom gold text was darkened to `#7d612e` to keep small labels above the WCAG AA contrast threshold on ivory, surface and muted backgrounds.
-- The home page scored 100 for Accessibility, Best Practices and SEO in a local Lighthouse run.
+- Gold text uses `#7d612e` to meet WCAG AA contrast on ivory, surface and muted backgrounds.
+- Lighthouse scored 100 for Accessibility, Best Practices and SEO on the home and contact pages.
 
-## Current scope and next steps
+## Deployment on Vercel
 
-- The home page is a deliberately minimal composition; the remaining homepage sections are still to be built.
-- Legal policy copy is pending. The routes exist, carry an “In preparation” notice and are excluded from indexing.
-- The hero photograph is a local reference asset and should be replaced with final licensed photography.
-- The enquiry system is complete but inactive until real Resend credentials and verified sender/recipient addresses are supplied.
-- CMS integration and analytics remain out of scope.
+Import the repository into Vercel. No custom domain is required.
 
-## Deployment
+1. Set the environment variables above in the Vercel project settings.
+2. Leave `NEXT_PUBLIC_SITE_URL` blank to use the automatic `*.vercel.app` URL.
+3. Set `NEXT_PUBLIC_FORMSUBMIT_RECIPIENT` and complete FormSubmit activation.
+4. Deploy. Vercel detects Next.js automatically.
 
-Set `NEXT_PUBLIC_SITE_URL`, the public contact details and the three server-only email variables in the production environment before building. Then:
+A typical production check:
 
 ```bash
 npm test
 npm run check
 npm run build
-npm run start
 ```
 
-The project uses Next.js Cache Components and partial prefetching. The footer copyright year is derived inside a cached `"use cache"` function so it can be prerendered without making the shell dynamic.
+## Current scope
+
+- All five pages and the enquiry form are implemented.
+- Content is static and maintained in `content/`.
+- No CMS, database, blog, Insights page, custom email API or backend service is present.
+- The hero photograph is a reference asset and should be replaced with final licensed photography.
+- FormSubmit delivery becomes live only after a recipient is configured and activated.

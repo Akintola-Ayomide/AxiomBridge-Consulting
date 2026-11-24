@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Loader2 } from "lucide-react";
@@ -9,6 +8,8 @@ import {
   ENQUIRY_ERROR_MESSAGE,
   ENQUIRY_NETWORK_ERROR,
   ENQUIRY_SUCCESS_MESSAGE,
+  FORM_SUBMIT_NOT_CONFIGURED_MESSAGE,
+  getServiceLabel,
   serviceOptions,
 } from "@/content/enquiry";
 import { Button } from "@/components/ui/button";
@@ -18,21 +19,20 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "@/components/forms/form-field";
 import { StatusAlert } from "@/components/forms/status-alert";
+import {
+  getFormSubmitConfig,
+  getFormSubmitEndpoint,
+  getFormSubmitError,
+  isFormSubmitSuccess,
+} from "@/lib/formsubmit";
 import { siteConfig } from "@/lib/site";
-import type { EnquiryInput } from "@/lib/validation/enquiry";
-import { enquirySchema } from "@/lib/validation/enquiry";
+import { enquirySchema, type EnquiryInput } from "@/lib/validation/enquiry";
 import { cn } from "@/lib/utils";
 
 type SubmitState =
   | { status: "idle" }
   | { status: "success"; message: string }
   | { status: "error"; message: string };
-
-type EnquiryResponse = {
-  success?: boolean;
-  message?: string;
-  fieldErrors?: Partial<Record<keyof EnquiryInput, string[]>>;
-};
 
 function describedBy(id: string, error?: string, hasDescription = false) {
   const ids = [
@@ -49,6 +49,7 @@ type EnquiryFormProps = {
 
 function EnquiryForm({ className }: EnquiryFormProps) {
   const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle" });
+  const config = getFormSubmitConfig();
 
   const form = useForm<EnquiryInput>({
     resolver: zodResolver(enquirySchema),
@@ -60,49 +61,55 @@ function EnquiryForm({ className }: EnquiryFormProps) {
       service: "",
       message: "",
       consent: false,
-      website: "",
+      _honey: "",
     },
   });
 
   const {
     register,
     handleSubmit,
-    setError,
     reset,
     formState: { errors, isSubmitting },
   } = form;
 
   const onSubmit = handleSubmit(async (values) => {
+    if (!config) {
+      setSubmitState({
+        status: "error",
+        message: FORM_SUBMIT_NOT_CONFIGURED_MESSAGE,
+      });
+      return;
+    }
+
     setSubmitState({ status: "idle" });
 
     try {
-      const response = await fetch("/api/enquiries", {
+      const response = await fetch(getFormSubmitEndpoint(config.recipient), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
+          Accept: "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          name: values.fullName,
+          email: values.email,
+          company: values.company,
+          service: getServiceLabel(values.service),
+          message: values.message,
+          _replyto: values.email,
+          _subject: config.subject,
+          _honey: values._honey,
+          ...(config.captcha ? {} : { _captcha: "false" }),
+          ...(config.blacklist ? { _blacklist: config.blacklist } : {}),
+        }),
       });
 
-      const data = (await response.json().catch(() => null)) as EnquiryResponse | null;
+      const data: unknown = await response.json().catch(() => null);
 
-      if (!response.ok) {
-        if (data?.fieldErrors) {
-          for (const [name, messages] of Object.entries(data.fieldErrors)) {
-            const message = messages?.[0];
-            if (message) {
-              setError(name as keyof EnquiryInput, {
-                type: "server",
-                message,
-              });
-            }
-          }
-        }
-
+      if (!response.ok || !isFormSubmitSuccess(data)) {
         setSubmitState({
           status: "error",
-          message: data?.message ?? ENQUIRY_ERROR_MESSAGE,
+          message: getFormSubmitError(data, ENQUIRY_ERROR_MESSAGE),
         });
         return;
       }
@@ -110,7 +117,7 @@ function EnquiryForm({ className }: EnquiryFormProps) {
       reset();
       setSubmitState({
         status: "success",
-        message: data?.message ?? ENQUIRY_SUCCESS_MESSAGE,
+        message: ENQUIRY_SUCCESS_MESSAGE,
       });
     } catch {
       setSubmitState({ status: "error", message: ENQUIRY_NETWORK_ERROR });
@@ -120,12 +127,18 @@ function EnquiryForm({ className }: EnquiryFormProps) {
   return (
     <Card className={cn("p-6 md:p-8", className)}>
       <form onSubmit={onSubmit} noValidate aria-busy={isSubmitting}>
-        {submitState.status === "success" ? (
+        {!config ? (
           <StatusAlert
-            tone="success"
-            title="Enquiry received"
+            tone="error"
+            title="Delivery not configured"
             className="mb-6"
           >
+            {FORM_SUBMIT_NOT_CONFIGURED_MESSAGE}
+          </StatusAlert>
+        ) : null}
+
+        {submitState.status === "success" ? (
+          <StatusAlert tone="success" title="Enquiry received" className="mb-6">
             {submitState.message}
           </StatusAlert>
         ) : null}
@@ -246,13 +259,14 @@ function EnquiryForm({ className }: EnquiryFormProps) {
         <div className="mt-6 border-t border-line pt-6">
           <p className="text-body-sm text-slate">
             We use your details only to respond to this enquiry. We do not sell
-            or share them. Read our{" "}
-            <Link
-              href="/legal/privacy-policy"
+            or share them. By submitting, you consent to this processing. You
+            can withdraw consent at any time by emailing{" "}
+            <a
+              href={`mailto:${siteConfig.contact.email}`}
               className="font-medium text-gold-dark underline decoration-gold/40 underline-offset-2 hover:text-navy"
             >
-              Privacy Policy
-            </Link>
+              {siteConfig.contact.email}
+            </a>
             .
           </p>
 
@@ -293,18 +307,22 @@ function EnquiryForm({ className }: EnquiryFormProps) {
         </div>
 
         <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-          <label htmlFor="enquiry-website">Website</label>
+          <label htmlFor="enquiry-honey">Website</label>
           <input
-            id="enquiry-website"
+            id="enquiry-honey"
             type="text"
             tabIndex={-1}
             autoComplete="off"
-            {...register("website")}
+            {...register("_honey")}
           />
         </div>
 
         <div className="mt-8 flex flex-wrap items-center gap-4">
-          <Button type="submit" size="lg" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            size="lg"
+            disabled={isSubmitting || !config}
+          >
             {isSubmitting ? (
               <>
                 <Loader2 aria-hidden="true" className="animate-spin" />

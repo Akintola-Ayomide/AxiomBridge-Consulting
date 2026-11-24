@@ -11,8 +11,9 @@ export default defineConfig({
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     setupFiles: ["./tests/setup.ts"],
     environment: "node",
-    pool: "threads",
+    pool: "vmThreads",
     fileParallelism: false,
+    isolate: false,
     restoreMocks: true,
   },
 });

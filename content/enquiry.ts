@@ -31,3 +31,6 @@ export const ENQUIRY_ERROR_MESSAGE =
 
 export const ENQUIRY_NETWORK_ERROR =
   "We could not reach the server. Check your connection and try again, or email us directly.";
+
+export const FORM_SUBMIT_NOT_CONFIGURED_MESSAGE =
+  "Enquiry delivery is not configured yet. Please email us directly until this form is activated.";

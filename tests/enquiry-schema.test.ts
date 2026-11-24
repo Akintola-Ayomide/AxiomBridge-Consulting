@@ -11,7 +11,7 @@ const validEnquiry = {
   service: "business-strategy-advisory",
   message: "We need support entering the West African market and building a three-year strategy.",
   consent: true,
-  website: "",
+  _honey: "",
 };
 
 describe("enquirySchema", () => {
@@ -21,7 +21,7 @@ describe("enquirySchema", () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.email).toBe("ada@example.com");
-      expect(result.data.website).toBe("");
+      expect(result.data._honey).toBe("");
     }
   });
 
